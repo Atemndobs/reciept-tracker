@@ -1,20 +1,17 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Text, ScrollView, Image } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
 
-export default function ReceiptDetailScreen({ route }) {
-  const { imageUri } = route.params;
-  const [receiptData, setReceiptData] = useState({
-    store: 'REWE',
-    date: new Date().toLocaleDateString(),
-    items: [
-      { name: 'Milch', price: 1.59, calories: 350 },
-      { name: 'Brot', price: 2.29, calories: 265 },
-      { name: 'Käse', price: 3.49, calories: 402 },
-    ],
-  });
+export default function ReceiptDetailScreen({ route, navigation }) {
+  const { imageUri, receiptData } = route.params;
 
-  const totalPrice = receiptData.items.reduce((sum, item) => sum + item.price, 0);
-  const totalCalories = receiptData.items.reduce((sum, item) => sum + item.calories, 0);
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Unknown Date';
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  const formatPrice = (price) => {
+    return `€${price?.toFixed(2) || '0.00'}`;
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -27,30 +24,34 @@ export default function ReceiptDetailScreen({ route }) {
       </View>
 
       <View style={styles.detailsContainer}>
-        <Text style={styles.storeText}>{receiptData.store}</Text>
-        <Text style={styles.dateText}>{receiptData.date}</Text>
+        <Text style={styles.storeText}>{receiptData?.store || 'Unknown Store'}</Text>
+        <Text style={styles.dateText}>{formatDate(receiptData?.date)}</Text>
 
         <View style={styles.itemsContainer}>
           <View style={styles.headerRow}>
             <Text style={[styles.headerText, styles.itemName]}>Item</Text>
             <Text style={[styles.headerText, styles.itemPrice]}>Price</Text>
-            <Text style={[styles.headerText, styles.itemCalories]}>Calories</Text>
           </View>
 
-          {receiptData.items.map((item, index) => (
+          {receiptData?.items?.map((item, index) => (
             <View key={index} style={styles.itemRow}>
               <Text style={styles.itemName}>{item.name}</Text>
-              <Text style={styles.itemPrice}>€{item.price.toFixed(2)}</Text>
-              <Text style={styles.itemCalories}>{item.calories}</Text>
+              <Text style={styles.itemPrice}>{formatPrice(item.price)}</Text>
             </View>
           ))}
 
           <View style={styles.totalRow}>
             <Text style={styles.totalText}>Total</Text>
-            <Text style={styles.totalPrice}>€{totalPrice.toFixed(2)}</Text>
-            <Text style={styles.totalCalories}>{totalCalories}</Text>
+            <Text style={styles.totalPrice}>{formatPrice(receiptData?.total)}</Text>
           </View>
         </View>
+
+        <TouchableOpacity 
+          style={styles.retryButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.retryButtonText}>Scan Another Receipt</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -121,11 +122,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'right',
   },
-  itemCalories: {
-    flex: 1,
-    fontSize: 16,
-    textAlign: 'right',
-  },
   totalRow: {
     flexDirection: 'row',
     borderTopWidth: 1,
@@ -144,10 +140,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'right',
   },
-  totalCalories: {
-    flex: 1,
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'right',
+  retryButton: {
+    backgroundColor: '#007AFF',
+    padding: 15,
+    borderRadius: 10,
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  retryButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
