@@ -16,7 +16,7 @@ export default function HomeScreen() {
 
       <TouchableOpacity 
         style={styles.button}
-        onPress={() => navigation.navigate('Stats')}
+        onPress={() => navigation.navigate('Statistics')}
       >
         <Text style={styles.buttonText}>View Statistics</Text>
       </TouchableOpacity>
